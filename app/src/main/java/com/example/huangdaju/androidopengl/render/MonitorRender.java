@@ -1,4 +1,4 @@
-package com.example.huangdaju.androidopengl.widget;
+package com.example.huangdaju.androidopengl.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
