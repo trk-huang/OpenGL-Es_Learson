@@ -4,13 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activity.BaseActivity">
 
-    <Button
-        android:id="@+id/first1"
+
+    <com.example.huangdaju.androidopengl.widget.Monitor
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="first activity"
-        android:textSize="12dp" />
+        android:layout_height="match_parent" />
 
 </android.support.constraint.ConstraintLayout>
