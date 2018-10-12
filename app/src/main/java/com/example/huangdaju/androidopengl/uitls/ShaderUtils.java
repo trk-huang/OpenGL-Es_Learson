@@ -37,4 +37,25 @@ public class ShaderUtils {
         }
         return shader;
     }
+
+
+    public static int createProgram(Context context, String vertextShaderName, String fragShaderName) {
+
+        String vertexShaderCode = ShaderUtils.getVertexShader(context, vertextShaderName);
+        String fragmentShaderCode = ShaderUtils.getFragShader(context, fragShaderName);
+
+        int vertextShader = ShaderUtils.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragShader = ShaderUtils.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+        //创建一个空的OpenGLES程序
+        int mProgram = GLES20.glCreateProgram();
+        //将顶点着色器加入到程序
+        GLES20.glAttachShader(mProgram, vertextShader);
+        //将片元着色器加入到程序中
+        GLES20.glAttachShader(mProgram, fragShader);
+        //连接到着色器程序
+        GLES20.glLinkProgram(mProgram);
+
+        return mProgram;
+    }
 }
