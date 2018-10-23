@@ -7,9 +7,11 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 
 import com.example.huangdaju.androidopengl.R;
 import com.example.huangdaju.androidopengl.render.MonitorTextureRender;
+import com.example.huangdaju.androidopengl.render.MonitorTextureRender1;
 
 public class Monitor extends GLSurfaceView {
     private final static String TAG = "Monitor";
@@ -18,8 +20,14 @@ public class Monitor extends GLSurfaceView {
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
 
-//    private MonitorFullRender mRender;
-    MonitorTextureRender mRender;
+    private float mMaxScale = 1.5f;
+    private float mMinScale = 1.0f;
+
+    //    private MonitorFullRender mRender;
+    MonitorTextureRender1 mRender;
+
+    private ScaleGestureDetector scaleGestureDetector;
+
     public Monitor(Context context) {
         super(context);
     }
@@ -28,7 +36,9 @@ public class Monitor extends GLSurfaceView {
         super(context, attrs);
         this.setEGLContextClientVersion(2);
 //        MonitorRender mRender = new MonitorRender(context);
-        mRender = new MonitorTextureRender(context);
+        mRender = new MonitorTextureRender1(context);
+
+        scaleGestureDetector = new ScaleGestureDetector(context,new scaleListener());
 //        SGLRender sglRender = new SGLRender(this);
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.test1);
         mRender.setBitmap(bitmap);
@@ -47,12 +57,17 @@ public class Monitor extends GLSurfaceView {
         super.onPause();
     }
 
+    private void refreshView(){
+        this.requestRender();
+    }
+
     float x, y;
     private int mode;
     private float oldDist = 1f;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        scaleGestureDetector.onTouchEvent(event);
         final float normalizedX =
                 (event.getX() / (float) getWidth()) * 2 - 1;
         final float normalizedY =
@@ -66,16 +81,12 @@ public class Monitor extends GLSurfaceView {
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 mode = ZOOM;
-                oldDist = (float) spacing(event);
+                oldDist = spacing(event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 Log.e(TAG, "移动事件");
                 if (mode == DRAG) {
                     move(normalizedX - x, normalizedY - y);
-                }else if (mode == ZOOM){
-                    float newDist = (float) spacing(event);
-                    float scale = newDist / oldDist;
-                    scale(scale);
                 }
                 x = normalizedX;
                 y = normalizedY;
@@ -98,24 +109,69 @@ public class Monitor extends GLSurfaceView {
     }
 
     private void scale(float scale) {
+        Log.d(TAG, " scale " + scale);
         mRender.scale(scale);
     }
 
     // 触碰两点间距离
-    private double spacing(MotionEvent event) {
+    private float spacing(MotionEvent event) {
         //通过三角函数得到两点间的距离
-        float x = event.getX(0) - event.getX(1);
-        float y = event.getY(0) - event.getY(1);
-        return Math.sqrt(x * x + y * y);
+        try {
+            float x = event.getX(0) - event.getX(1);
+            float y = event.getY(0) - event.getY(1);
+            return (float) Math.sqrt(x * x + y * y);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 
 
     private void move(float v, float v1) {
-        mRender.move(v,v1);
+
+        mRender.move(v, v1);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+    }
+
+    private float minScale = 1f,maxScale = 2f;
+    private float preScale = 1f;
+    public class scaleListener implements ScaleGestureDetector.OnScaleGestureListener{
+        float initialSpan,currentSpan;
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            if (mode == ZOOM) {
+                currentSpan = detector.getCurrentSpan();
+                Log.d("TAG", "onScale: current init" + currentSpan + " " + initialSpan);
+                if (Math.abs(currentSpan - initialSpan) > 10) {
+                    float currentScale = detector.getScaleFactor() * preScale;
+                    Log.d("TAG", "onScale: current scale and pre scale = " + currentScale + " " + preScale);
+//                float scale = preScale * currentScale;
+                    if (currentScale < minScale) {
+                        currentScale = minScale;
+                    } else if (currentScale > maxScale) {
+                        currentScale = maxScale;
+                    }
+                    scale(currentScale);
+                    preScale = currentScale;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            initialSpan = detector.getCurrentSpan();
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+        }
+
     }
 }

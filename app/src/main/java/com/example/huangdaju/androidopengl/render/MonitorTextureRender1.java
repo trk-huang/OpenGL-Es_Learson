@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
-import android.opengl.Matrix;
+import android.util.Log;
 
 import com.example.huangdaju.androidopengl.uitls.ShaderUtils;
 import com.example.huangdaju.androidopengl.uitls.VaryTools;
@@ -17,7 +17,7 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class MonitorTextureRender implements GLSurfaceView.Renderer {
+public class MonitorTextureRender1 implements GLSurfaceView.Renderer {
 
 
     private int mProgram, glHPosition, glHTexture, glHCoordinate, glHMatrix;
@@ -40,14 +40,14 @@ public class MonitorTextureRender implements GLSurfaceView.Renderer {
     };
     private FloatBuffer bPos;
     private FloatBuffer bCoord;
-    private float[] mViewMatrix = new float[16];
-    private float[] mProjectMatrix = new float[16];
-    private float[] mMVPMatrix = new float[16];
 
     private Context mContext;
 
-    public MonitorTextureRender(Context mContext) {
+    private VaryTools varyTools;
+
+    public MonitorTextureRender1(Context mContext) {
         this.mContext = mContext;
+        varyTools = new VaryTools();
         initBuffer();
     }
 
@@ -62,9 +62,9 @@ public class MonitorTextureRender implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         //将背景设置为灰色
-        GLES20.glClearColor(1.0f,1.0f,1.0f,1.0f);
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLES20.glEnable(GLES20.GL_TEXTURE_2D);
-        mProgram= ShaderUtils.createProgram(mContext, "texture_vertex_shader","texture_frag_shader");
+        mProgram = ShaderUtils.createProgram(mContext, "texture_vertex_shader", "texture_frag_shader");
         glHPosition = GLES20.glGetAttribLocation(mProgram, "vPosition");
         glHCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
         glHTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
@@ -74,13 +74,13 @@ public class MonitorTextureRender implements GLSurfaceView.Renderer {
 
     private void initBuffer() {
         //申请底层空间
-        ByteBuffer bb=ByteBuffer.allocateDirect(sPos.length*4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(sPos.length * 4);
         bb.order(ByteOrder.nativeOrder());
         //将坐标数据转换为FloatBuffer，用以传入给OpenGL ES程序
-        bPos=bb.asFloatBuffer();
+        bPos = bb.asFloatBuffer();
         bPos.put(sPos);
         bPos.position(0);
-        ByteBuffer cc=ByteBuffer.allocateDirect(sCoord.length*4);
+        ByteBuffer cc = ByteBuffer.allocateDirect(sCoord.length * 4);
         cc.order(ByteOrder.nativeOrder());
         //将坐标数据转换为FloatBuffer，用以传入给OpenGL ES程序
         bCoord = cc.asFloatBuffer();
@@ -88,47 +88,55 @@ public class MonitorTextureRender implements GLSurfaceView.Renderer {
         bCoord.position(0);
     }
 
+    private float[] oldMatrix;
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
-        GLES20.glViewport(0,0,width,height);
+        GLES20.glViewport(0, 0, width, height);
 
-        int w=bitmap.getWidth();
-        int h=bitmap.getHeight();
-        float sWH=w/(float)h;
-        float sWidthHeight=width/(float)height;
-        if(width>height){
-            if(sWH>sWidthHeight){
-                Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight*sWH,sWidthHeight*sWH, -1,1, 3, 5);
-            }else{
-                Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight/sWH,sWidthHeight/sWH, -1,1, 3, 5);
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        float sWH = w / (float) h;
+        float sWidthHeight = width / (float) height;
+        if (width > height) {
+            if (sWH > sWidthHeight) {
+                varyTools.ortho(-sWidthHeight * sWH, sWidthHeight * sWH, -1, 1, 3, 5);
+            } else {
+                varyTools.ortho(-sWidthHeight / sWH, sWidthHeight / sWH, -1, 1, 3, 5);
             }
-        }else{
-            if(sWH>sWidthHeight){
-                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1/sWidthHeight*sWH, 1/sWidthHeight*sWH,3, 5);
-            }else{
-                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH/sWidthHeight, sWH/sWidthHeight,3, 5);
+        } else {
+            if (sWH > sWidthHeight) {
+                varyTools.ortho(-1, 1, -1 / sWidthHeight * sWH, 1 / sWidthHeight * sWH, 3, 5);
+            } else {
+                varyTools.ortho(-1, 1, -sWH / sWidthHeight, sWH / sWidthHeight, 3, 5);
             }
         }
         //设置相机位置
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        varyTools.setCamera(0, 0, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
+
         //计算变换矩阵
-        Matrix.multiplyMM(mMVPMatrix,0,mProjectMatrix,0,mViewMatrix,0);
+        oldMatrix = varyTools.getFinalMatrix();
     }
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glUseProgram(mProgram);
-        GLES20.glUniformMatrix4fv(glHMatrix,1,false,mMVPMatrix,0);
+        float [] ff =  varyTools.getFinalMatrix();
+        for (int i=0; i < ff.length;i++ ){
+            Log.d("TAG-montor", ff[i] + "");
+        }
+
+        GLES20.glUniformMatrix4fv(glHMatrix, 1, false, varyTools.getFinalMatrix(), 0);
         GLES20.glEnableVertexAttribArray(glHPosition);
         GLES20.glEnableVertexAttribArray(glHCoordinate);
         GLES20.glUniform1i(glHTexture, 0);
-        textureId=createTexture();
+        textureId = createTexture();
         //传入顶点坐标
-        GLES20.glVertexAttribPointer(glHPosition,2,GLES20.GL_FLOAT,false,0,bPos);
+        GLES20.glVertexAttribPointer(glHPosition, 2, GLES20.GL_FLOAT, false, 0, bPos);
         //传入纹理坐标
-        GLES20.glVertexAttribPointer(glHCoordinate,2,GLES20.GL_FLOAT,false,0,bCoord);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,4);
+        GLES20.glVertexAttribPointer(glHCoordinate, 2, GLES20.GL_FLOAT, false, 0, bCoord);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     }
 
 
@@ -153,4 +161,13 @@ public class MonitorTextureRender implements GLSurfaceView.Renderer {
         }
         return 0;
     }
+
+    public void move(float v, float v1) {
+        varyTools.translate(v, v1, 0);
+    }
+
+    public void scale(float scale) {
+        varyTools.scale(scale, scale, 0);
+    }
+
 }
