@@ -23,6 +23,7 @@ public class MonitorTextureRender1 implements GLSurfaceView.Renderer {
     private int mProgram, glHPosition, glHTexture, glHCoordinate, glHMatrix;
     private Bitmap bitmap;
     private int textureId;
+    private float d = 1;
 
     //顶点坐标
     private final float[] sPos = {
@@ -43,7 +44,7 @@ public class MonitorTextureRender1 implements GLSurfaceView.Renderer {
 
     private Context mContext;
 
-    private VaryTools varyTools;
+    public VaryTools varyTools;
 
     public MonitorTextureRender1(Context mContext) {
         this.mContext = mContext;
@@ -97,6 +98,13 @@ public class MonitorTextureRender1 implements GLSurfaceView.Renderer {
         int h = bitmap.getHeight();
         float sWH = w / (float) h;
         float sWidthHeight = width / (float) height;
+        d = 1 / sWidthHeight * sWH;
+//        float aspectRatio = width > height ? (float) width / (float) height : (float) height / (float) width;
+//        if (width > height){
+//            varyTools.ortho(-aspectRatio,aspectRatio,-1f,1f, 3, 5);
+//        }else {
+//            varyTools.ortho(-1f,1f,-aspectRatio,aspectRatio, 3, 5);
+//        }
         if (width > height) {
             if (sWH > sWidthHeight) {
                 varyTools.ortho(-sWidthHeight * sWH, sWidthHeight * sWH, -1, 1, 3, 5);
@@ -163,11 +171,11 @@ public class MonitorTextureRender1 implements GLSurfaceView.Renderer {
     }
 
     public void move(float v, float v1) {
-        varyTools.translate(v, v1, 0);
+        varyTools.translate(v, v1 * d, 0);
     }
 
-    public void scale(float scale) {
-        varyTools.scale(scale, scale, 0);
+    public void scale(float scale, float[] s) {
+        varyTools.scale(scale, scale, 0, s);
     }
 
 }

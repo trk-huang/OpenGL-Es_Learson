@@ -15,6 +15,8 @@ public class VaryTools {
             0,1,0,0,
             0,0,1,0,
             0,0,0,1};
+    private float[] mMatrixO = mMatrixCurrent;
+    private float[] xy = {0, 0};
 
     private Stack<float[]> mStack;      //变换矩阵堆栈
 
@@ -38,6 +40,10 @@ public class VaryTools {
 
     //平移变换
     public void translate(float x,float y,float z){
+        x /= mMatrixCurrent[0];
+        y /= mMatrixCurrent[5];
+        if (mMatrixCurrent[12] + x > mMatrixCurrent[0] - 1 || mMatrixCurrent[12] + x < 1 - mMatrixCurrent[0]) return;
+        if (mMatrixCurrent[13] + y > 3.7 || mMatrixCurrent[13] + y < -3.7) return;
         Matrix.translateM(mMatrixCurrent,0,x,y,z);
     }
 
@@ -47,8 +53,20 @@ public class VaryTools {
     }
 
     //缩放变换
-    public void scale(float x,float y,float z){
+    public void scale(float x,float y,float z, float[] s){
+        mMatrixCurrent[0] = s[0];
+        mMatrixCurrent[5] = s[1];
+        if (mMatrixCurrent[0] * x < 1) x = 1;
+        if (mMatrixCurrent[5] * y < 1) y = 1;
         Matrix.scaleM(mMatrixCurrent,0,x,y,z);
+        if (mMatrixCurrent[0] - 1 < mMatrixCurrent[12]) {
+            float x1 = mMatrixCurrent[12] - (mMatrixCurrent[0] - 1);
+            Matrix.translateM(mMatrixCurrent,0,-x1,0,0);
+        }
+    }
+
+    public float[] getScale() {
+        return new float[]{mMatrixCurrent[0], mMatrixCurrent[5]};
     }
 
     //设置相机

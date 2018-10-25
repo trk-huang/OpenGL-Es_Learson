@@ -12,6 +12,7 @@ import android.view.ScaleGestureDetector;
 import com.example.huangdaju.androidopengl.R;
 import com.example.huangdaju.androidopengl.render.MonitorTextureRender;
 import com.example.huangdaju.androidopengl.render.MonitorTextureRender1;
+import com.example.huangdaju.androidopengl.uitls.VaryTools;
 
 public class Monitor extends GLSurfaceView {
     private final static String TAG = "Monitor";
@@ -22,6 +23,8 @@ public class Monitor extends GLSurfaceView {
 
     private float mMaxScale = 1.5f;
     private float mMinScale = 1.0f;
+
+    private float[] lastScale;
 
     //    private MonitorFullRender mRender;
     MonitorTextureRender1 mRender;
@@ -108,9 +111,9 @@ public class Monitor extends GLSurfaceView {
         return true;
     }
 
-    private void scale(float scale) {
-        Log.d(TAG, " scale " + scale);
-        mRender.scale(scale);
+    private void scale(float scale, float[] s) {
+        Log.d("scale==", "scale " + scale);
+        mRender.scale(scale, s);
     }
 
     // 触碰两点间距离
@@ -150,13 +153,13 @@ public class Monitor extends GLSurfaceView {
                 if (Math.abs(currentSpan - initialSpan) > 10) {
                     float currentScale = detector.getScaleFactor() * preScale;
                     Log.d("TAG", "onScale: current scale and pre scale = " + currentScale + " " + preScale);
-//                float scale = preScale * currentScale;
+                float scale = preScale * currentScale;
                     if (currentScale < minScale) {
                         currentScale = minScale;
                     } else if (currentScale > maxScale) {
                         currentScale = maxScale;
                     }
-                    scale(currentScale);
+                    scale(detector.getScaleFactor(), lastScale);
                     preScale = currentScale;
                 }
             }
@@ -166,6 +169,7 @@ public class Monitor extends GLSurfaceView {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             initialSpan = detector.getCurrentSpan();
+            lastScale = mRender.varyTools.getScale();
             return true;
         }
 
