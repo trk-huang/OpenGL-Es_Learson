@@ -42,7 +42,14 @@ public class VaryTools {
     public void translate(float x,float y,float z){
         x /= mMatrixCurrent[0];
         y /= mMatrixCurrent[5];
-        if (mMatrixCurrent[12] + x > mMatrixCurrent[0] - 1 || mMatrixCurrent[12] + x < 1 - mMatrixCurrent[0]) return;
+        if (mMatrixCurrent[12] + x > mMatrixCurrent[0] - 1) {
+            mMatrixCurrent[12] = mMatrixCurrent[0] - 1;
+            x = 0;
+        }
+        if (mMatrixCurrent[12] + x < 1 - mMatrixCurrent[0]) {
+            mMatrixCurrent[12] = 1 - mMatrixCurrent[0];
+            x = 0;
+        }
         if (mMatrixCurrent[13] + y > 3.7 || mMatrixCurrent[13] + y < -3.7) return;
         Matrix.translateM(mMatrixCurrent,0,x,y,z);
     }
@@ -56,13 +63,30 @@ public class VaryTools {
     public void scale(float x,float y,float z, float[] s){
         mMatrixCurrent[0] = s[0];
         mMatrixCurrent[5] = s[1];
-        if (mMatrixCurrent[0] * x < 1) x = 1;
-        if (mMatrixCurrent[5] * y < 1) y = 1;
+        if (mMatrixCurrent[0] * x < 1) {
+            mMatrixCurrent[0] = 1;
+            x = 1;
+        }
+        if (mMatrixCurrent[5] * y < 1) {
+            mMatrixCurrent[5] = 1;
+            y = 1;
+        }
         Matrix.scaleM(mMatrixCurrent,0,x,y,z);
+
         if (mMatrixCurrent[0] - 1 < mMatrixCurrent[12]) {
             float x1 = mMatrixCurrent[12] - (mMatrixCurrent[0] - 1);
             Matrix.translateM(mMatrixCurrent,0,-x1,0,0);
+        } else if (mMatrixCurrent[0] - 1 < -mMatrixCurrent[12]) {
+            float x1 = -mMatrixCurrent[12] - (mMatrixCurrent[0] - 1);
+            Matrix.translateM(mMatrixCurrent,0, x1,0,0);
         }
+//        if (mMatrixCurrent[5] - 1 < mMatrixCurrent[13]) {
+//            float x1 = mMatrixCurrent[13] - (mMatrixCurrent[5] - 1);
+//            Matrix.translateM(mMatrixCurrent,0,-x1,0,0);
+//        } else if (mMatrixCurrent[0] - 1 < -mMatrixCurrent[12]) {
+//            float x1 = -mMatrixCurrent[12] - (mMatrixCurrent[0] - 1);
+//            Matrix.translateM(mMatrixCurrent,0, x1,0,0);
+//        }
     }
 
     public float[] getScale() {
