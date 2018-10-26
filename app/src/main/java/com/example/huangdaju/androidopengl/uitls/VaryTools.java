@@ -50,7 +50,14 @@ public class VaryTools {
             mMatrixCurrent[12] = 1 - mMatrixCurrent[0];
             x = 0;
         }
-        if (mMatrixCurrent[13] + y > 3.7 || mMatrixCurrent[13] + y < -3.7) return;
+        if (mMatrixCurrent[13] + y > mMatrixCurrent[5] - 1) {
+            mMatrixCurrent[13] = mMatrixCurrent[5] - 1;
+            y = 0;
+        }
+        if (mMatrixCurrent[13] + y < 1 - mMatrixCurrent[5]) {
+            mMatrixCurrent[13] = 1 - mMatrixCurrent[5];
+            y = 0;
+        }
         Matrix.translateM(mMatrixCurrent,0,x,y,z);
     }
 
@@ -80,13 +87,15 @@ public class VaryTools {
             float x1 = -mMatrixCurrent[12] - (mMatrixCurrent[0] - 1);
             Matrix.translateM(mMatrixCurrent,0, x1,0,0);
         }
-//        if (mMatrixCurrent[5] - 1 < mMatrixCurrent[13]) {
-//            float x1 = mMatrixCurrent[13] - (mMatrixCurrent[5] - 1);
-//            Matrix.translateM(mMatrixCurrent,0,-x1,0,0);
-//        } else if (mMatrixCurrent[0] - 1 < -mMatrixCurrent[12]) {
-//            float x1 = -mMatrixCurrent[12] - (mMatrixCurrent[0] - 1);
-//            Matrix.translateM(mMatrixCurrent,0, x1,0,0);
-//        }
+
+
+        if (mMatrixCurrent[5] - 1 < mMatrixCurrent[13]) {
+            float y1 = mMatrixCurrent[13] - (mMatrixCurrent[5] - 1);
+            Matrix.translateM(mMatrixCurrent,0,0,-y1,0);
+        } else if (mMatrixCurrent[0] - 1 < -mMatrixCurrent[13]) {
+            float y1 = -mMatrixCurrent[13] - (mMatrixCurrent[5] - 1);
+            Matrix.translateM(mMatrixCurrent,0, 0,y1,0);
+        }
     }
 
     public float[] getScale() {
