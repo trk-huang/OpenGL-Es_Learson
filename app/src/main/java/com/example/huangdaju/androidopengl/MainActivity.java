@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.huangdaju.androidopengl.activity.CubeActivity;
 import com.example.huangdaju.androidopengl.activity.OpenGlActivity1;
 import com.example.huangdaju.androidopengl.activity.OpenGlActivity2;
 import com.example.huangdaju.androidopengl.camera.activity.CameraActivity;
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button button1;
     private Button button2;
     private Button button3;
+    private Button button4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button2.setOnClickListener(this);
         button3 = this.findViewById(R.id.first3);
         button3.setOnClickListener(this);
+        button4 = this.findViewById(R.id.first4);
+        button4.setOnClickListener(this);
     }
 
 
@@ -38,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             intent = new Intent(MainActivity.this, OpenGlActivity2.class);
         }else if (view.getId() == R.id.first3){
             intent = new Intent(MainActivity.this, CameraActivity.class);
+        }else if (view.getId() == R.id.first4){
+            intent = new Intent(MainActivity.this, CubeActivity.class);
         }
 
         startActivity(intent);

@@ -153,4 +153,8 @@ public class MonitorTextureRender implements GLSurfaceView.Renderer {
         }
         return 0;
     }
+
+    public void getScale(){
+
+    }
 }

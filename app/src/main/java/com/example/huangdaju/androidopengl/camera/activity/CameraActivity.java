@@ -1,11 +1,15 @@
 package com.example.huangdaju.androidopengl.camera.activity;
 
+import android.Manifest;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.example.huangdaju.androidopengl.R;
 import com.example.huangdaju.androidopengl.camera.uitls.CameraUtils;
+import com.example.huangdaju.androidopengl.camera.uitls.PermissionUtils;
 import com.example.huangdaju.androidopengl.camera.view.CameraSufaceView;
 
 /**
@@ -25,9 +29,31 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera);
-        frameLayout = findViewById(R.id.rl_camera_preview);
-        CameraSufaceView cameraSufaceView = new CameraSufaceView(this, CameraUtils.getCameraInstance());
-        frameLayout.addView(cameraSufaceView);
+        PermissionUtils.askPermission(this,new String[]{Manifest.permission.CAMERA,Manifest
+                .permission.WRITE_EXTERNAL_STORAGE},10,initViewRunnable);
+
+    }
+
+    private Runnable initViewRunnable=new Runnable() {
+        @Override
+        public void run() {
+            setContentView(R.layout.activity_camera);
+            frameLayout = findViewById(R.id.rl_camera_preview);
+            CameraSufaceView cameraSufaceView = new CameraSufaceView(CameraActivity.this, CameraUtils.getCameraInstance());
+            frameLayout.addView(cameraSufaceView);
+        }
+    };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionUtils.onRequestPermissionsResult(requestCode == 10, grantResults, initViewRunnable,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(CameraActivity.this, "没有获得必要的权限", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
     }
 }
