@@ -6,10 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.huangdaju.androidopengl.activity.CameraActivity;
 import com.example.huangdaju.androidopengl.activity.CubeActivity;
 import com.example.huangdaju.androidopengl.activity.OpenGlActivity1;
 import com.example.huangdaju.androidopengl.activity.OpenGlActivity2;
-import com.example.huangdaju.androidopengl.camera.activity.CameraActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 

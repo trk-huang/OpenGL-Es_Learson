@@ -22,12 +22,13 @@ public class SkyRender implements GLSurfaceView.Renderer {
 
     private Bitmap mBitmap;
     private VaryTools mVaryTools;
-    private float r = 2f; // 球的半径
     private int mProgram;
 
     private float radius = 2f;
-    final double angleSpan = Math.PI / 90f;// 将球进行单位切分的角度
-    int vCount = 0;// 顶点个数，先初始化为0
+    // 将球进行单位切分的角度
+    final double angleSpan = Math.PI / 90f;
+    // 顶点个数，先初始化为0
+    int vCount = 0;
     private FloatBuffer posBuffer;
     private FloatBuffer cooBuffer;
 

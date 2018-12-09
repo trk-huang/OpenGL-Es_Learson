@@ -6,7 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".camera.activity.CameraActivity">
     <FrameLayout
-        android:id="@+id/rl_camera_preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        android:layout_height="match_parent">
+        <SurfaceView
+            android:id="@+id/rl_camera_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 </android.support.constraint.ConstraintLayout>

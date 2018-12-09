@@ -28,9 +28,8 @@
         </activity>
         <activity android:name=".activity.OpenGlActivity1" />
         <activity android:name=".activity.OpenGlActivity2" />
-        <activity android:name=".camera.activity.CameraActivity" />
+        <activity android:name=".activity.CameraActivity" />
         <activity android:name=".activity.CubeActivity"></activity>
-        <activity android:name=".activity.VrContextActivity"/>
     </application>
 
 </manifest>
